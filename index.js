@@ -25,13 +25,13 @@ let options = [];
  */
 async function initialLoad() {
   try {
-    const response = await fetch("https://api.thecatapi.com/v1/breeds", {
+    const response = await axios.get("https://api.thecatapi.com/v1/breeds", {
       headers: {
         "x-api-key": API_KEY,
       },
     });
-    const data = await response.json();
-    //console.log(data[0].description);
+    const data = response.data;
+    //console.log(data);
 
     for (let i = 0; i < data.length; i++) {
       //console.log(data[i].name + " " + data[i].id);
@@ -75,7 +75,6 @@ initialLoad();
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
-
 breedSelect.addEventListener("change", retrieveBreedInformation);
 
 async function retrieveBreedInformation() {
@@ -86,9 +85,10 @@ async function retrieveBreedInformation() {
     //console.log("Selected value:", thisBreed);
 
     let breedDesciption = "";
+    console.log("before the for");
     for (let i = 0; i < options.length; i++) {
-      //console.log("Selected value:", thisBreed);
-      //console.log("Option value:", options[i].value);
+      console.log("Selected value:", thisBreed);
+      console.log("Option value:", options[i].value);
       if (options[i].value === thisBreed) {
         breedDesciption = options[i].description;
         break;
@@ -97,26 +97,26 @@ async function retrieveBreedInformation() {
 
     let breedURL = "https://api.thecatapi.com/v1/breeds/" + thisBreed;
     //console.log("Breed url:", breedURL);
-    const response = await fetch(breedURL, {
+    const response = await axios.get(breedURL, {
       headers: {
         "x-api-key": API_KEY,
       },
     });
-    const data = await response.json();
+    const data = response.data;
 
     let breedImageURLs = [];
     for (let i = 0; i < 10; i++) {
       let breedImageURL =
         "https://api.thecatapi.com/v1/images/search?breed_ids=" + thisBreed;
-      //console.log("Image url:", breedImageURL);
-      const imageResponse = await fetch(breedImageURL, {
+      console.log("Image url:", breedImageURL);
+      const imageResponse = await axios.get(breedImageURL, {
         headers: {
           "x-api-key": API_KEY,
         },
       });
-      const imageData = await imageResponse.json();
+      const imageData = imageResponse.data;
       const url = imageData[0].url;
-      //console.log(url);
+      console.log(url);
 
       const imageItem = Carousel.createCarouselItem(
         url,
@@ -125,12 +125,9 @@ async function retrieveBreedInformation() {
       );
       Carousel.appendCarousel(imageItem);
     }
-    //console.log(breedDesciption);
     infoDump.innerHTML = breedDesciption;
 
     Carousel.start();
-
-    
   } catch (err) {
     console.log(err);
   }
@@ -189,6 +186,7 @@ async function retrieveBreedInformation() {
  */
 export async function favourite(imgId) {
   // your code here
+  // getFavouritesBtn
 }
 
 /**
