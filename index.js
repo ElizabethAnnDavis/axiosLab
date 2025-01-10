@@ -16,6 +16,38 @@ const API_KEY = "live_ipqpJMz4I1iQlfVsrlqqW9dPyt2v9Xe50rcpUrY1Xh2kAxfHb9b4HkAmFP
 let options = [];
 
 /**
+ * 5. Add axios interceptors to log the time between request and response to the console.
+ * - Hint: you already have access to code that does this!
+ * - Add a console.log statement to indicate when requests begin.
+ * - As an added challenge, try to do this on your own without referencing the lesson material.
+ */
+
+axios.interceptors.request.use(request => {
+  progressBar.style.width = "0%";
+  document.querySelector("body").style.cursor = "progress";
+  request.metadata = request.metadata || {};
+  request.metadata.startTime = new Date().getTime();
+  return request;
+});
+
+axios.interceptors.response.use(
+  (response) => {
+      response.config.metadata.endTime = new Date().getTime();
+      response.config.metadata.durationInMS = response.config.metadata.endTime - response.config.metadata.startTime;
+
+      console.log(`Request took ${response.config.metadata.durationInMS} milliseconds.`)
+      document.querySelector("body").style.cursor = "auto";
+      return response;
+  },
+  (error) => {
+      error.config.metadata.endTime = new Date().getTime();
+      error.config.metadata.durationInMS = error.config.metadata.endTime - error.config.metadata.startTime;
+
+      console.log(`Request took ${error.config.metadata.durationInMS} milliseconds.`)
+      throw error;
+});
+
+/**
  * 1. Create an async function "initialLoad" that does the following:
  * - Retrieve a list of breeds from the cat API using fetch().
  * - Create new <options> for each of these breeds, and append them to breedSelect.
@@ -27,8 +59,8 @@ async function initialLoad() {
   try {
     const response = await axios.get("https://api.thecatapi.com/v1/breeds", {
       headers: {
-        "x-api-key": API_KEY,
-      },
+        "x-api-key": API_KEY
+      }
     });
     const data = response.data;
     //console.log(data);
@@ -80,6 +112,7 @@ breedSelect.addEventListener("change", retrieveBreedInformation);
 async function retrieveBreedInformation() {
   try {
     Carousel.clear();
+    infoDump.innerHTML = "";
 
     let thisBreed = breedSelect.value;
     //console.log("Selected value:", thisBreed);
@@ -87,8 +120,8 @@ async function retrieveBreedInformation() {
     let breedDesciption = "";
     console.log("before the for");
     for (let i = 0; i < options.length; i++) {
-      console.log("Selected value:", thisBreed);
-      console.log("Option value:", options[i].value);
+      //console.log("Selected value:", thisBreed);
+      //console.log("Option value:", options[i].value);
       if (options[i].value === thisBreed) {
         breedDesciption = options[i].description;
         break;
@@ -99,8 +132,8 @@ async function retrieveBreedInformation() {
     //console.log("Breed url:", breedURL);
     const response = await axios.get(breedURL, {
       headers: {
-        "x-api-key": API_KEY,
-      },
+        "x-api-key": API_KEY
+      }
     });
     const data = response.data;
 
@@ -108,15 +141,16 @@ async function retrieveBreedInformation() {
     for (let i = 0; i < 10; i++) {
       let breedImageURL =
         "https://api.thecatapi.com/v1/images/search?breed_ids=" + thisBreed;
-      console.log("Image url:", breedImageURL);
+      //console.log("Image url:", breedImageURL);
       const imageResponse = await axios.get(breedImageURL, {
         headers: {
-          "x-api-key": API_KEY,
+          "x-api-key": API_KEY
         },
+        onDownloadProgress: (progressEvent) => { updateProgess(progressEvent) }
       });
       const imageData = imageResponse.data;
       const url = imageData[0].url;
-      console.log(url);
+      //console.log(url);
 
       const imageItem = Carousel.createCarouselItem(
         url,
@@ -145,12 +179,7 @@ async function retrieveBreedInformation() {
  *   by setting a default header with your API key so that you do not have to
  *   send it manually with all of your requests! You can also set a default base URL!
  */
-/**
- * 5. Add axios interceptors to log the time between request and response to the console.
- * - Hint: you already have access to code that does this!
- * - Add a console.log statement to indicate when requests begin.
- * - As an added challenge, try to do this on your own without referencing the lesson material.
- */
+
 
 /**
  * 6. Next, we'll create a progress bar to indicate the request is in progress.
@@ -167,6 +196,11 @@ async function retrieveBreedInformation() {
  *   once or twice per request to this API. This is still a concept worth familiarizing yourself
  *   with for future projects.
  */
+function updateProgess(progressEvent){
+  let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+  progressBar.style.width = percentCompleted + "%";
+}
+
 
 /**
  * 7. As a final element of progress indication, add the following to your axios interceptors:
