@@ -152,23 +152,31 @@ async function retrieveBreedInformation() {
         onDownloadProgress: (progressEvent) => { updateProgess(progressEvent) }
       });
       const imageData = imageResponse.data;
-      const url = imageData[0].url;
-      const imgID = imageData[0].id;
-      //console.log(url);
 
-      const imageItem = Carousel.createCarouselItem(
-        url,
-        breedSelect.name,
-        imgID
-      );
-      Carousel.appendCarousel(imageItem);
+      console.log("IMAGE ARRAY LENGTH: " + imageData.length);
+      if(imageData.length <= 0){
+        console.log("IN HERE");
+        breedDesciption = `NO CAT PICS! :(\n ${breedDesciption}`;
+        break;
+      }else{
+        const url = imageData[0].url;
+        const imgID = imageData[0].id;
+        //console.log(url);
+
+        const imageItem = Carousel.createCarouselItem(
+          url,
+          breedSelect.name,
+          imgID
+        );
+        Carousel.appendCarousel(imageItem);
+      };
     }
     infoDump.innerHTML = breedDesciption;
 
     Carousel.start();
   } catch (err) {
     console.log(err);
-  }
+  };
 }
 
 /**
