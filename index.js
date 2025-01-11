@@ -240,15 +240,16 @@ export async function favourite(imgId) {
   }
     */
     let newFav = true;
-    /*const isFavorite = await axios.get(`https://api.thecatapi.com/v1/favourites?image_id=${imgId}`,{
+    const isFavorite = await axios.get(`https://api.thecatapi.com/v1/favourites?image_id=${imgId}`,{
       headers: { 
         'x-api-key': API_KEY 
       }
     });
-    console.log(isFavorite.data[0].id);*/
+    console.log("Favorite ID" + isFavorite.data[0]);
 
-    if(newFav){
-      
+    if(isFavorite.data[0]){
+      deleteFavourites(isFavorite.data[0].id);
+    }else{
       const bodyData = {image_id: imgId};
       console.log("before axios");
       const newFavourite = await axios.post("https://api.thecatapi.com/v1/favourites", bodyData, {
@@ -257,7 +258,7 @@ export async function favourite(imgId) {
         }
       });
       console.log("after axios");
-    }
+    };
   }catch(err){
     console.log(err);
   };
