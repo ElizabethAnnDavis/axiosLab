@@ -223,14 +223,29 @@ function updateProgess(progressEvent){
  * - You can call this function by clicking on the heart at the top right of any image.
  */
 
-const favouriteCats = [];
-
 export async function favourite(imgId) {
   try{
     console.log("In Favourite function");
     console.log("Image ID: " + imgId);
 
+    /*
+    const isFavorite = await axios(`https://api.thecatapi.com/v1/favourites?image_id=${imgId}`);
+
+  if (isFavorite.data[0]) {
+    await axios.delete(`/favourites/${isFavorite.data[0].id}`);
+  } else {
+    await axios.post("/favourites", {
+      image_id: imgId
+    });
+  }
+    */
     let newFav = true;
+    /*const isFavorite = await axios.get(`https://api.thecatapi.com/v1/favourites?image_id=${imgId}`,{
+      headers: { 
+        'x-api-key': API_KEY 
+      }
+    });
+    console.log(isFavorite.data[0].id);*/
 
     if(newFav){
       
