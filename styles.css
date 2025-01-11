@@ -7,6 +7,12 @@ body {
   background-color: lightgray;
 }
 
+img {
+  object-fit: cover;
+  width: 100%;
+  height: 500px;
+}
+
 .progress-bar-top {
   position: fixed;
   top: 0;

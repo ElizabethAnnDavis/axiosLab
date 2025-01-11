@@ -60,7 +60,8 @@ async function initialLoad() {
     const response = await axios.get("https://api.thecatapi.com/v1/breeds", {
       headers: {
         "x-api-key": API_KEY
-      }
+      },
+      onDownloadProgress: (progressEvent) => { updateProgess(progressEvent) }
     });
     const data = response.data;
     //console.log(data);
@@ -89,6 +90,7 @@ async function initialLoad() {
   } catch (err) {
     console.log(err);
   }
+  retrieveBreedInformation();
 }
 
 initialLoad();
@@ -133,7 +135,8 @@ async function retrieveBreedInformation() {
     const response = await axios.get(breedURL, {
       headers: {
         "x-api-key": API_KEY
-      }
+      },
+      onDownloadProgress: (progressEvent) => { updateProgess(progressEvent) }
     });
     const data = response.data;
 
@@ -150,12 +153,13 @@ async function retrieveBreedInformation() {
       });
       const imageData = imageResponse.data;
       const url = imageData[0].url;
+      const imgID = imageData[0].id;
       //console.log(url);
 
       const imageItem = Carousel.createCarouselItem(
         url,
         breedSelect.name,
-        thisBreed
+        imgID
       );
       Carousel.appendCarousel(imageItem);
     }
@@ -218,10 +222,49 @@ function updateProgess(progressEvent){
  *   you delete that favourite using the API, giving this function "toggle" functionality.
  * - You can call this function by clicking on the heart at the top right of any image.
  */
+
+const favouriteCats = [];
+
 export async function favourite(imgId) {
-  // your code here
-  // getFavouritesBtn
+  try{
+    console.log("In Favourite function");
+    console.log("Image ID: " + imgId);
+
+    let newFav = true;
+
+    if(newFav){
+      
+      const bodyData = {image_id: imgId};
+      console.log("before axios");
+      const newFavourite = await axios.post("https://api.thecatapi.com/v1/favourites", bodyData, {
+      headers: { 
+          'x-api-key': API_KEY 
+        }
+      });
+      console.log("after axios");
+    }
+  }catch(err){
+    console.log(err);
+  };
 }
+
+async function deleteFavourites(imgId){
+  try{
+    console.log("In deleteFavourites function");
+
+    console.log("before axios");
+    const deleteImg = await axios.delete("https://api.thecatapi.com/v1/favourites/" + imgId, {
+      headers: { 
+        'x-api-key': API_KEY 
+      },
+      onDownloadProgress: (progressEvent) => { updateProgess(progressEvent) }
+    });
+    console.log("after axios");
+  }catch(err){
+    console.log(err);
+  };
+}
+//deleteFavourites();
 
 /**
  * 9. Test your favourite() function by creating a getFavourites() function.
@@ -233,6 +276,69 @@ export async function favourite(imgId) {
  *    repeat yourself in this section.
  */
 
+getFavouritesBtn.addEventListener('click', getFavourites);
+
+async function getFavourites(){
+  try{
+    console.log("In getFavourites function");
+
+    Carousel.clear();
+    infoDump.innerHTML = "";
+
+    console.log("before axios");
+    const favouriteImgs = await axios.get("https://api.thecatapi.com/v1/favourites", {
+      headers: { 
+        'x-api-key': API_KEY 
+      },
+      onDownloadProgress: (progressEvent) => { updateProgess(progressEvent) }
+    });
+    console.log("after axios");
+
+    const imgData = favouriteImgs.data;
+    console.log("Image Data: ");
+    console.log(favouriteImgs);
+
+    for (let i = 0; i < imgData.length; i++) {
+      const url = imgData[i].image.url;
+      const imgID = imgData[i].image_id;
+      const imgAlt = "Favourited Cat";
+      //console.log(url);
+
+      const imageItem = Carousel.createCarouselItem(
+        url,
+        imgAlt,
+        imgID
+      );
+      Carousel.appendCarousel(imageItem);
+    }
+    infoDump.innerHTML = "These are the cats you selected as your favourites.";
+
+    Carousel.start();
+
+  }catch(err){
+    console.log(err);
+  };
+}
+
+/*async function setFavArray(){
+  try{
+    console.log("In setFavArray function");
+    console.log("before axios");
+    const favouriteImgs = await axios.get("https://api.thecatapi.com/v1/favourites", {
+      headers: { 
+        'x-api-key': API_KEY 
+      }
+    });
+    console.log("after axios");
+    favouriteCats = favouriteImgs.data;
+    console.log("Image Data: ");
+    console.log(favouriteImgs);
+    console.log("Fav Cats: ");
+    console.log(favouriteCats);
+  }catch(err){
+    console.log(err);
+  };
+}*/
 /**
  * 10. Test your site, thoroughly!
  * - What happens when you try to load the Malayan breed?
